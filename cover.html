@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Bìa - Profile Cá Nhân</title>
+    <!-- CSS Giao diện Dark Violet -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+</head>
+<body>
+    <!-- Lớp phủ hiệu ứng fade chuyển trang -->
+    <div class="page-fade-overlay"></div>
+
+    <!-- Container toàn màn hình bắt sự kiện nhấn bất kỳ đâu -->
+    <main class="cover-wrapper" id="coverScreen" role="button" tabindex="0" aria-label="Nhấn vào bất kỳ đâu để vào trang chính">
+        
+        <!-- Nền các mảng màu tím làm mờ mạnh blur(60px) trên nền #2a1561 -->
+        <!-- CHÚ THÍCH: Bạn có thể điều chỉnh vị trí và màu sắc các blob trong file css/style.css -->
+        <div class="cover-background-blobs" aria-hidden="true">
+            <div class="cover-blob blob-1"></div>
+            <div class="cover-blob blob-2"></div>
+            <div class="cover-blob blob-3"></div>
+        </div>
+
+        <!-- Nội dung chính giữa màn hình -->
+        <div class="cover-content">
+            <!-- Icon Omen từ file assets/icon.png (nền trong suốt, sắc nét, nổi nhẹ) -->
+            <!-- CHÚ THÍCH: Muốn thay icon, bạn chỉ cần thay file assets/icon.png bằng icon mới của bạn -->
+            <div class="cover-icon-wrapper">
+                <div class="cover-icon-halo"></div>
+                <img src="assets/icon.png" alt="Omen Symbol" class="cover-icon-img" width="190" height="190" loading="eager">
+            </div>
+
+            <!-- Dòng chữ gợi ý tương tác -->
+            <div class="cover-text">
+                <span>Nhấn vào bất kỳ đâu để vào trang chính</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script chung & Xử lý sự kiện nhấn chuyển sang index.html -->
+    <script src="js/common.js"></script>
+    <script>
+        // Xử lý sự kiện click chuột hoặc chạm màn hình để chuyển sang index.html
+        const coverScreen = document.getElementById('coverScreen');
+        let isTransitioning = false;
+
+        function goToMainPage() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            // Chuyển sang index.html bằng hiệu ứng fade mượt mà
+            window.navigateTo('index.html');
+        }
+
+        // Bắt sự kiện click chuột
+        coverScreen.addEventListener('click', goToMainPage);
+
+        // Hỗ trợ bấm phím (Enter / Space) cho khả năng tiếp cận (Accessibility)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                goToMainPage();
+            }
+        });
+
+        // Hỗ trợ thao tác chạm trên điện thoại
+        coverScreen.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            goToMainPage();
+        }, { passive: false });
+    </script>
+</body>
+</html>

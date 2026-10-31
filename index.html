@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Cá Nhân - Omen Energy</title>
+    <!-- Giao diện CSS Dark Violet & HUD Voiceline -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/voiceline.css">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+</head>
+<body class="main-viewport">
+    <!-- Lớp phủ chuyển trang Fade In / Fade Out -->
+    <div class="page-fade-overlay"></div>
+
+    <!-- =========================================================================
+         TRANG BÌA (COVER SCREEN - HIỂN THỊ MẶC ĐỊNH KHI TẢI / RELOAD TRANG)
+         ========================================================================= -->
+    <main class="cover-wrapper" id="coverScreen" role="button" tabindex="0" aria-label="Nhấn vào bất kỳ đâu để vào trang chính">
+        <!-- Nền các mảng màu tím làm mờ mạnh blur(60px) trên nền #2a1561 -->
+        <div class="cover-background-blobs" aria-hidden="true">
+            <div class="cover-blob blob-1"></div>
+            <div class="cover-blob blob-2"></div>
+            <div class="cover-blob blob-3"></div>
+        </div>
+
+        <!-- Nội dung chính giữa màn hình -->
+        <div class="cover-content">
+            <div class="cover-icon-wrapper">
+                <div class="cover-icon-halo"></div>
+                <img src="assets/icon.png" alt="Omen Symbol" class="cover-icon-img" width="190" height="190" loading="eager">
+            </div>
+
+            <div class="cover-text">
+                <span>Nhấn vào bất kỳ đâu để vào trang chính</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- =========================================================================
+         KHU VỰC NỀN (BACKGROUND CONTAINER)
+         Hỗ trợ 4 chế độ nền linh hoạt:
+         1. Video YouTube (mặc định)
+         2. File Video MP4 (tải từ máy hoặc file local, 100% không lo lỗi YouTube)
+         3. Ảnh nền Wallpaper (Omen 4K)
+         4. Nền Gradient Tím Đậm #2a1561 (Fallback an toàn)
+         ========================================================================= -->
+    <div class="video-background-container" id="videoBgContainer">
+        
+        <!-- 1. Iframe YouTube -->
+        <iframe 
+            id="youtubeBgFrame"
+            class="video-background-iframe"
+            src="" 
+            title="Background Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            tabindex="-1"
+            loading="lazy">
+        </iframe>
+
+        <!-- 2. Thẻ Video MP4 nội bộ (chạy mượt mà, không phụ thuộc YouTube) -->
+        <video 
+            id="localBgVideo" 
+            class="video-background-iframe" 
+            src="assets/background.mp4"
+            autoplay 
+            muted 
+            loop 
+            playsinline 
+            style="object-fit: cover; width: 100%; height: 100%; position: absolute; inset: 0; transform: none;">
+        </video>
+
+        <!-- 3. Ảnh nền Wallpaper -->
+        <div id="imageBgLayer" class="image-background-layer" style="display:none;"></div>
+
+        <!-- Lớp phủ tối mờ góc giúp chữ và hiệu ứng tương tác hiển thị rõ nét hơn -->
+        <div class="video-vignette" aria-hidden="true"></div>
+    </div>
+
+
+    <!-- =========================================================================
+         GIAO DIỆN CHÍNH (Z-Index > Canvas)
+         ========================================================================= -->
+    <div class="ui-layer">
+        
+        <!-- HEADER: Huy hiệu Discord (góc trên trái) & Nút mở Dashboard (góc trên phải) -->
+        <header class="top-nav">
+            <!-- Huy hiệu Discord: Chấm xanh "Đang online", chấm xám khi offline -->
+            <div class="discord-badge" id="discordBadge" title="Trạng thái Discord (Realtime qua Lanyard API)">
+                <div class="discord-avatar-wrap">
+                    <img src="assets/icon.png" alt="Discord Avatar" class="discord-avatar" id="discordAvatar">
+                    <span class="status-dot offline" id="discordStatusDot"></span>
+                </div>
+                <div class="discord-meta">
+                    <span class="discord-name" id="discordUsername">Discord</span>
+                    <span class="discord-status-text" id="discordStatusText">Ngoại tuyến</span>
+                </div>
+            </div>
+
+            <!-- Nút điều hướng sang Dashboard (đã ẩn để trang hiển thị gọn gàng, truy cập qua /dashboard.html nếu cần) -->
+            <a href="dashboard.html" data-navigate class="nav-action-btn" title="Mở trang quản trị liên kết & nền" style="display: none;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+        </header>
+
+        <!-- =========================================================================
+             KHU VỰC GIAO DIỆN CHÍNH: TOÀN BỘ LINK BÊN TRÁI & LYRICS BÊN PHẢI
+             - Bên trái: Toàn bộ liên kết mạng xã hội & khay icon
+             - Ở giữa: Khoảng trống 100% trong suốt cho nhân vật Omen 4K trong video
+             - Bên phải: Lời bài hát thời gian thực (Live Lyrics Karaoke)
+             ========================================================================= -->
+        <main class="links-section" id="linksSection">
+            <!-- Cột toàn bộ liên kết & icon bên trái -->
+            <div class="links-column left" id="linksLeftCol"></div>
+
+            <!-- Khoảng trống ở giữa dành cho nhân vật Omen -->
+            <div class="center-spacer" aria-hidden="true" style="flex: 1; pointer-events: none;"></div>
+
+            <!-- Cột Voiceline HUD công nghệ chiến thuật bên phải (Chỉ hiện khi có ít nhất 1 voiceline) -->
+            <div class="voiceline-column hidden" id="voicelineCol">
+                <div class="voiceline-hud-border">
+                    <div class="voiceline-card" id="voicelineCard" tabindex="0" role="region" aria-label="Khung Voiceline">
+                        <!-- Hai ngoặc chữ L ở góc trên-phải và dưới-trái -->
+                        <div class="vl-bracket top-right" aria-hidden="true"></div>
+                        <div class="vl-bracket bottom-left" aria-hidden="true"></div>
+
+                        <!-- Hàng tiêu đề -->
+                        <div class="vl-header">
+                            <div class="vl-title-group">
+                                <svg class="vl-diamond-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <polygon points="12 2 22 12 12 22 2 12"></polygon>
+                                </svg>
+                                <span class="vl-title-text">VOICELINE</span>
+                            </div>
+                            <div class="vl-header-right">
+                                <span class="vl-index-indicator" id="vlIndexIndicator">01 / 01</span>
+                                <button type="button" class="vl-vol-btn" id="vlMuteBtn" aria-label="Bật tắt tiếng Voiceline" title="Bật / Tắt âm thanh Voiceline">
+                                    <svg class="vl-icon-vol-on" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                    </svg>
+                                    <svg class="vl-icon-vol-off" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+                                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                                    </svg>
+                                </button>
+                                <button type="button" class="vl-collapse-btn" id="vlCollapseBtn" aria-label="Thu gọn khung Voiceline" title="Thu gọn">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dải vạch chia thước đo -->
+                        <div class="vl-scale-ruler" aria-hidden="true"></div>
+
+                        <!-- Phần chính: Nút phát lục giác & Tên voiceline + Nhân vật / Vai trò -->
+                        <div class="vl-primary-row">
+                            <button type="button" class="vl-hex-btn" id="vlHexPlayBtn" aria-label="Phát voiceline" aria-pressed="false">
+                                <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                            </button>
+                            <div class="vl-meta-info">
+                                <div class="vl-track-name" id="vlTrackName">Đang tải voiceline...</div>
+                                <div class="vl-char-role" id="vlCharRole">OMEN // CONTROLLER // SHADOW</div>
+                            </div>
+                        </div>
+
+                        <!-- Khung phụ đề hiện từng chữ -->
+                        <div class="vl-subtitle-box" id="vlSubtitleBox">
+                            <span class="vl-typewriter-text" id="vlSubtitleText">...</span>
+                            <span class="vl-cursor-caret" aria-hidden="true"></span>
+                            <!-- Screen reader live region để cập nhật câu hoàn chỉnh khi đổi bài -->
+                            <span class="sr-only" id="vlSubtitleSr" aria-live="polite"></span>
+                        </div>
+
+                        <!-- Dạng sóng âm 56 thanh -->
+                        <div class="vl-waveform-wrap" id="vlWaveformWrap" aria-hidden="true"></div>
+
+                        <!-- Thanh tiến trình & Thời gian -->
+                        <div class="vl-progress-row">
+                            <div class="vl-progress-track" id="vlProgressBar" role="slider" aria-label="Tiến trình phát" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                <div class="vl-progress-fill" id="vlProgressFill">
+                                    <div class="vl-progress-handle" id="vlProgressHandle"></div>
+                                </div>
+                            </div>
+                            <div class="vl-time-display">
+                                <span id="vlCurrentTime">00:00</span>
+                                <span id="vlDuration">00:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách voiceline bên dưới -->
+                        <div class="vl-playlist-wrap" id="vlPlaylistWrap" role="list"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Biểu tượng tròn thu gọn của Voiceline HUD -->
+        <button type="button" class="voiceline-toggle-pill hidden" id="voicelineTogglePill" aria-label="Mở khung Voiceline" title="Mở Voiceline">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+        </button>
+
+        <!-- =========================================================================
+             FOOTER: Thanh phát nhạc
+             ========================================================================= -->
+        <footer class="bottom-bar">
+            <!-- Thanh phát nhạc: Chỉ hiển thị khi người dùng đã thêm audio qua IndexedDB -->
+            <div class="music-player-container hidden" id="musicPlayerContainer"></div>
+        </footer>
+
+    </div>
+
+    <!-- Scripts chức năng -->
+    <script src="js/common.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/icons-data.js"></script>
+    <script src="js/lanyard.js"></script>
+    <script src="js/music-player.js"></script>
+    <script src="js/voiceline.js"></script>
+    <script src="js/cursor-fx.js"></script>
+
+    <script>
+        // =========================================================================
+        // 1. KHỞI TẠO TRÌNH PHÁT NHẠC NỀN & KHUNG VOICELINE HUD
+        // =========================================================================
+        try {
+            const musicPlayer = new MusicPlayer('musicPlayerContainer');
+            window.musicPlayer = musicPlayer;
+        } catch (err) {
+            console.error('Lỗi khởi tạo MusicPlayer:', err);
+        }
+
+        try {
+            // Khởi tạo bộ điều khiển Voiceline HUD công nghệ chiến thuật
+            const voicelineController = new VoicelineController();
+            window.voicelineController = voicelineController;
+        } catch (err) {
+            console.error('Lỗi khởi tạo VoicelineController:', err);
+        }
+
+        // =========================================================================
+        // XỬ LÝ TRANG BÌA (COVER SCREEN) & KÍCH HOẠT ÂM THANH
+        // =========================================================================
+        const coverScreen = document.getElementById('coverScreen');
+        let coverDismissed = false;
+
+        async function dismissCover() {
+            if (coverDismissed) return;
+            coverDismissed = true;
+
+            if (coverScreen) {
+                coverScreen.classList.add('hidden');
+                setTimeout(() => {
+                    coverScreen.style.display = 'none';
+                }, 700);
+            }
+
+            // Kích hoạt toàn diện âm thanh (Voiceline & Nhạc nền) ngay từ cú chạm vào Cover
+            try {
+                if (window.voicelineController) {
+                    window.voicelineController.ensureAudioContext();
+                    if (window.voicelineController.audioCtx && window.voicelineController.audioCtx.state === 'suspended') {
+                        await window.voicelineController.audioCtx.resume();
+                    }
+                    if (!window.voicelineController.isPlaying) {
+                        await window.voicelineController.play();
+                    }
+                }
+            } catch (_) {}
+
+            try {
+                if (window.musicPlayer && !window.musicPlayer.isPlaying && window.musicPlayer.audio && window.musicPlayer.audio.src) {
+                    window.musicPlayer.play();
+                }
+            } catch (_) {}
+
+            try {
+                const localVideo = document.getElementById('localBgVideo');
+                if (localVideo && localVideo.paused) {
+                    localVideo.play().catch(() => {});
+                }
+            } catch (_) {}
+        }
+
+        if (coverScreen) {
+            coverScreen.addEventListener('click', dismissCover);
+            coverScreen.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                dismissCover();
+            }, { passive: false });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (!coverDismissed && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) {
+                dismissCover();
+            }
+        });
+
+        // =========================================================================
+        // 2. XỬ LÝ BACKGROUND ĐA DẠNG & THÔNG MINH
+        // =========================================================================
+        const ytIframe = document.getElementById('youtubeBgFrame');
+        const localVideo = document.getElementById('localBgVideo');
+        const imageLayer = document.getElementById('imageBgLayer');
+        const videoBg = document.getElementById('videoBgContainer');
+        let currentBgObjectUrl = null;
+
+        async function applyBackground() {
+            try {
+                const config = window.ProfileStorage.getStoredBackgroundConfig();
+
+                if (currentBgObjectUrl) {
+                    URL.revokeObjectURL(currentBgObjectUrl);
+                    currentBgObjectUrl = null;
+                }
+
+                localVideo.pause();
+
+                if (config.type === 'image') {
+                    const imgData = await window.ProfileStorage.getBackgroundImageFile();
+                    if (imgData && imgData.blob) {
+                        currentBgObjectUrl = URL.createObjectURL(imgData.blob);
+                        imageLayer.style.backgroundImage = `url(${currentBgObjectUrl})`;
+                        imageLayer.style.display = 'block';
+                        ytIframe.style.display = 'none';
+                        localVideo.style.display = 'none';
+                        return;
+                    }
+                }
+
+                if (config.type === 'gradient') {
+                    videoBg.style.backgroundColor = '#2a1561';
+                    ytIframe.style.display = 'none';
+                    localVideo.style.display = 'none';
+                    imageLayer.style.display = 'none';
+                    return;
+                }
+
+                if (config.type === 'youtube' && config.youtubeId) {
+                    let ytid = (config.youtubeId || 'LUd14Xdfk68').trim();
+                    const urlMatch = ytid.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+                    if (urlMatch) {
+                        ytid = urlMatch[1];
+                    }
+
+                    ytIframe.src = `https://www.youtube-nocookie.com/embed/${ytid}?autoplay=1&mute=1&loop=1&playlist=${ytid}&controls=0&modestbranding=1&rel=0&playsinline=1`;
+                    ytIframe.style.display = 'block';
+                    localVideo.style.display = 'none';
+                    imageLayer.style.display = 'none';
+                    return;
+                }
+
+                ytIframe.style.display = 'none';
+                imageLayer.style.display = 'none';
+                localVideo.style.display = 'block';
+
+                const videoData = await window.ProfileStorage.getBackgroundVideoFile();
+                if (videoData && videoData.blob) {
+                    currentBgObjectUrl = URL.createObjectURL(videoData.blob);
+                    localVideo.src = currentBgObjectUrl;
+                } else {
+                    localVideo.src = 'assets/background.mp4';
+                }
+                localVideo.play().catch(() => {});
+            } catch (err) {
+                console.error('Lỗi khi áp dụng background:', err);
+            }
+        }
+
+        applyBackground();
+
+        window.addEventListener('profile-data-updated', (e) => {
+            if (e.detail && e.detail.type === 'background') {
+                applyBackground();
+            }
+        });
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'profile_background_config' || e.key === 'profile_sync_ping') {
+                applyBackground();
+            }
+        });
+
+        // =========================================================================
+        // 4. HIỂN THỊ TOÀN BỘ LIÊN KẾT MẠNG XÃ HỘI Ở CỘT BÊN TRÁI
+        // =========================================================================
+        function renderSocialLinks() {
+            try {
+                const leftCol = document.getElementById('linksLeftCol');
+                leftCol.innerHTML = '';
+
+                const links = window.ProfileStorage.getStoredLinks();
+                if (!links || links.length === 0) return;
+
+                const fullCards = [];
+                const iconCards = [];
+
+                links.forEach((link) => {
+                    const card = document.createElement('a');
+                    card.href = link.url;
+                    card.target = '_blank';
+                    card.rel = 'noopener noreferrer';
+
+                    const iconSrc = window.getIconSrc(link);
+                    const hasTitle = link.title && link.title.trim().length > 0;
+
+                    if (hasTitle) {
+                        card.className = 'social-link-card';
+                        card.innerHTML = `
+                            <div class="social-link-icon">
+                                <img src="${iconSrc}" alt="${link.title}" loading="lazy">
+                            </div>
+                            <span class="social-link-title">${escapeHTML(link.title)}</span>
+                            <span class="social-link-arrow">➔</span>
+                        `;
+                        fullCards.push(card);
+                    } else {
+                        card.className = 'social-link-card icon-only';
+                        card.title = link.url;
+                        card.innerHTML = `
+                            <div class="social-link-icon">
+                                <img src="${iconSrc}" alt="Link" loading="lazy">
+                            </div>
+                        `;
+                        iconCards.push(card);
+                    }
+                });
+
+                fullCards.forEach(c => leftCol.appendChild(c));
+
+                if (iconCards.length > 0) {
+                    const dock = document.createElement('div');
+                    dock.className = 'icon-only-dock';
+                    iconCards.forEach(c => dock.appendChild(c));
+                    leftCol.appendChild(dock);
+                }
+            } catch (err) {
+                console.error('Lỗi renderSocialLinks:', err);
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+
+        window.addEventListener('profile-data-updated', (e) => {
+            if (e.detail && e.detail.type === 'links') {
+                renderSocialLinks();
+            }
+        });
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'profile_social_links' || e.key === 'profile_sync_ping') {
+                renderSocialLinks();
+            }
+        });
+
+        renderSocialLinks();
+
+        // =========================================================================
+        // 5. THEO DÕI TRẠNG THÁI DISCORD REALTIME QUA LANYARD
+        // =========================================================================
+        const statusDot = document.getElementById('discordStatusDot');
+        const statusText = document.getElementById('discordStatusText');
+        const discordUser = document.getElementById('discordUsername');
+        const discordAvatar = document.getElementById('discordAvatar');
+
+        function updateDiscordPresence(data) {
+            if (!data || !data.connected) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Ngoại tuyến';
+                return;
+            }
+
+            if (data.isOnline) {
+                statusDot.className = `status-dot ${data.status}`;
+                statusText.textContent = data.currentActivity || 'Đang online';
+            } else {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Ngoại tuyến';
+            }
+
+            if (data.username) {
+                discordUser.textContent = data.username;
+            }
+            if (data.avatarUrl) {
+                discordAvatar.src = data.avatarUrl;
+            }
+        }
+
+        if (window.LanyardService) {
+            window.LanyardService.onUpdate(updateDiscordPresence);
+        }
+
+        function syncDiscordAccount() {
+            try {
+                const discordId = window.ProfileStorage.getStoredDiscordId();
+                if (discordId && window.LanyardService) {
+                    window.LanyardService.watch(discordId);
+                } else {
+                    statusDot.className = 'status-dot offline';
+                    statusText.textContent = 'Chưa liên kết';
+                    discordUser.textContent = 'Discord';
+                }
+            } catch (err) {
+                console.error('Lỗi syncDiscordAccount:', err);
+            }
+        }
+
+        syncDiscordAccount();
+
+        window.addEventListener('profile-data-updated', (e) => {
+            if (e.detail && e.detail.type === 'discord_id') {
+                syncDiscordAccount();
+            }
+        });
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'profile_discord_id' || e.key === 'profile_sync_ping') {
+                syncDiscordAccount();
+            }
+        });
+    </script>
+</body>
+</html>
