@@ -1,0 +1,37 @@
+﻿[
+    {
+        "id":  "link_1793453703049",
+        "title":  "",
+        "url":  "https://www.facebook.com/middle.T.0108/",
+        "icon":  "facebook",
+        "customIcon":  null
+    },
+    {
+        "id":  "link_1793453733407",
+        "title":  "",
+        "url":  "https://www.instagram.com/middlet205/",
+        "icon":  "instagram",
+        "customIcon":  null
+    },
+    {
+        "id":  "link_1793453713320",
+        "title":  "",
+        "url":  "https://discord.com/users/911068985901088778",
+        "icon":  "discord",
+        "customIcon":  null
+    },
+    {
+        "id":  "link_1793453769583",
+        "title":  "",
+        "url":  "https://open.spotify.com/playlist/02JsJAjKRqYgokyHU352N3?si=47b7b594b3fc4b5b",
+        "icon":  "custom",
+        "customIcon":  "assets/icons/spotify_custom.gif"
+    },
+    {
+        "id":  "link_1793453794608",
+        "title":  "",
+        "url":  "https://tracker.gg/valorant/profile/riot/Yoz0ra%232005",
+        "icon":  "custom",
+        "customIcon":  "assets/icons/tracker_custom.png"
+    }
+]

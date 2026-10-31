@@ -225,8 +225,8 @@ function getAudioSourceConfig() {
         if (raw) return JSON.parse(raw);
     } catch (e) {}
     return {
-        type: 'local', // 'local' (file mp3 playlist) hoặc 'spotify'
-        spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M'
+        type: 'spotify', // Tự động phát Spotify playlist để trang web online luôn có nhạc
+        spotifyUrl: 'https://open.spotify.com/playlist/02JsJAjKRqYgokyHU352N3?si=47b7b594b3fc4b5b'
     };
 }
 
@@ -344,19 +344,61 @@ async function deleteBackgroundImageFile() {
 }
 
 // -------------------------------------------------------------
-// LOCAL STORAGE HELPERS
+// LOCAL STORAGE HELPERS & DEFAULT PROFILE DATA (CHO WEB 24/7)
 // -------------------------------------------------------------
+
+const DEFAULT_DISCORD_ID = '911068985901088778';
+
+const DEFAULT_LINKS = [
+    {
+        id: 'link_1793453703049',
+        title: '',
+        url: 'https://www.facebook.com/middle.T.0108/',
+        icon: 'facebook',
+        customIcon: null
+    },
+    {
+        id: 'link_1793453713320',
+        title: '',
+        url: 'https://discord.com/users/911068985901088778',
+        icon: 'discord',
+        customIcon: null
+    },
+    {
+        id: 'link_1793453733407',
+        title: '',
+        url: 'https://www.instagram.com/middlet205/',
+        icon: 'instagram',
+        customIcon: null
+    },
+    {
+        id: 'link_1793453794608',
+        title: '',
+        url: 'https://tracker.gg/valorant/profile/riot/Yoz0ra%232005',
+        icon: 'custom',
+        customIcon: 'assets/icons/tracker_custom.png'
+    },
+    {
+        id: 'link_1793453769583',
+        title: '',
+        url: 'https://open.spotify.com/playlist/02JsJAjKRqYgokyHU352N3?si=47b7b594b3fc4b5b',
+        icon: 'custom',
+        customIcon: 'assets/icons/spotify_custom.gif'
+    }
+];
 
 function getStoredLinks() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.LINKS);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        if (raw !== null && raw !== undefined) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
     } catch (e) {
         console.error('Lỗi đọc links từ localStorage:', e);
-        return [];
     }
+    // Mặc định luôn nạp danh sách liên kết của bạn để bất kỳ ai vào web online đều thấy đủ 5 link
+    return JSON.parse(JSON.stringify(DEFAULT_LINKS));
 }
 
 function saveStoredLinks(links) {
@@ -374,7 +416,7 @@ function saveStoredSongName(name) {
 }
 
 function getStoredDiscordId() {
-    return localStorage.getItem(STORAGE_KEYS.DISCORD_ID) || '';
+    return localStorage.getItem(STORAGE_KEYS.DISCORD_ID) || DEFAULT_DISCORD_ID;
 }
 
 function saveStoredDiscordId(id) {
