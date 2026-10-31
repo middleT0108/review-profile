@@ -426,7 +426,11 @@ class VoicelineController {
         }
 
         let audioLoaded = false;
-        if (window.ProfileStorage && typeof window.ProfileStorage.getVoicelineAudio === 'function') {
+        if (track.audioUrl) {
+            this.audio.src = track.audioUrl;
+            this.audio.load();
+            audioLoaded = true;
+        } else if (window.ProfileStorage && typeof window.ProfileStorage.getVoicelineAudio === 'function') {
             const audioData = await window.ProfileStorage.getVoicelineAudio(track.id);
             if (audioData && audioData.blob) {
                 this.currentBlobUrl = URL.createObjectURL(audioData.blob);

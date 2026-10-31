@@ -516,10 +516,15 @@ class MusicPlayer {
 
         if (this.currentBlobUrl) {
             URL.revokeObjectURL(this.currentBlobUrl);
+            this.currentBlobUrl = null;
         }
 
-        this.currentBlobUrl = URL.createObjectURL(track.blob);
-        this.audio.src = this.currentBlobUrl;
+        if (track.blob) {
+            this.currentBlobUrl = URL.createObjectURL(track.blob);
+            this.audio.src = this.currentBlobUrl;
+        } else if (track.url) {
+            this.audio.src = track.url;
+        }
         this.audio.load();
 
         if (this.titleEl) {

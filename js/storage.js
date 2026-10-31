@@ -134,6 +134,17 @@ async function deleteAudioFile() {
     }
 }
 
+const DEFAULT_TRACKS = [
+    {
+        id: 'vung-vay',
+        fileName: 'vung_vay.m4a',
+        title: 'Dangrangto - vùng vẫy (feat. ZEX)',
+        url: 'assets/audio/music/vung_vay.m4a',
+        type: 'audio/mp4',
+        size: 8510414
+    }
+];
+
 /**
  * Lấy danh sách toàn bộ các bài hát trong Playlist từ IndexedDB
  * @returns {Promise<Array<{id: string, fileName: string, title: string, blob: Blob, type: string, size: number}>>}
@@ -165,13 +176,14 @@ async function getPlaylistTracks() {
                     }]);
                     return;
                 }
-                resolve([]);
+                // Mặc định luôn có bài nhạc nền Dangrangto chuẩn bị sẵn để web chạy 24/7
+                resolve(JSON.parse(JSON.stringify(DEFAULT_TRACKS)));
             };
-            req.onerror = () => resolve([]);
+            req.onerror = () => resolve(JSON.parse(JSON.stringify(DEFAULT_TRACKS)));
         });
     } catch (err) {
         console.warn('Lỗi đọc playlist:', err);
-        return [];
+        return JSON.parse(JSON.stringify(DEFAULT_TRACKS));
     }
 }
 
@@ -1081,30 +1093,33 @@ const VOICELINES_CONFIG_KEY = STORAGE_KEYS.VOICELINES;
 const DEFAULT_VOICELINES_CONFIG = {
     characterName: 'OMEN',
     characterRole: 'CONTROLLER // SHADOW',
-    autoNext: false,
+    autoNext: true,
     list: [
         {
-            id: 'omen_vl_1',
-            title: 'Look behind you',
-            subtitle: 'Look behind you. The shadows are already here.',
-            fileName: 'omen_shadows.mp3',
-            duration: 3.6,
+            id: 'omen_vl_select',
+            title: 'I am the beginning',
+            subtitle: 'I am the beginning, I am the end.',
+            fileName: 'omen_select.mp3',
+            audioUrl: 'assets/audio/voicelines/omen_select.mp3',
+            duration: 3.76,
             isDefault: true
         },
         {
-            id: 'omen_vl_2',
-            title: 'Scatter into the void',
-            subtitle: 'Scatter into the dark. You are already blind.',
-            fileName: 'omen_scatter.mp3',
-            duration: 3.8,
+            id: 'omen_vl_nightmare',
+            title: 'Escape my nightmare',
+            subtitle: 'Thought you could escape my nightmare?',
+            fileName: 'omen_nightmare.mp3',
+            audioUrl: 'assets/audio/voicelines/omen_nightmare.mp3',
+            duration: 3.20,
             isDefault: true
         },
         {
-            id: 'omen_vl_3',
-            title: 'I am the phantom',
-            subtitle: 'I am the phantom between the light and the end.',
-            fileName: 'omen_phantom.mp3',
-            duration: 4.2,
+            id: 'omen_vl_boo',
+            title: 'Boo!',
+            subtitle: 'Boo! The shadows watch you everywhere.',
+            fileName: 'omen_boo.mp3',
+            audioUrl: 'assets/audio/voicelines/omen_boo.mp3',
+            duration: 0.80,
             isDefault: true
         }
     ]
