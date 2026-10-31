@@ -1093,7 +1093,7 @@ const VOICELINES_CONFIG_KEY = STORAGE_KEYS.VOICELINES;
 const DEFAULT_VOICELINES_CONFIG = {
     characterName: 'OMEN',
     characterRole: 'CONTROLLER // SHADOW',
-    autoNext: true,
+    autoNext: false,
     list: [
         {
             id: 'omen_vl_select',
@@ -1102,24 +1102,6 @@ const DEFAULT_VOICELINES_CONFIG = {
             fileName: 'omen_select.mp3',
             audioUrl: 'assets/audio/voicelines/omen_select.mp3',
             duration: 3.76,
-            isDefault: true
-        },
-        {
-            id: 'omen_vl_nightmare',
-            title: 'Escape my nightmare',
-            subtitle: 'Thought you could escape my nightmare?',
-            fileName: 'omen_nightmare.mp3',
-            audioUrl: 'assets/audio/voicelines/omen_nightmare.mp3',
-            duration: 3.20,
-            isDefault: true
-        },
-        {
-            id: 'omen_vl_boo',
-            title: 'Boo!',
-            subtitle: 'Boo! The shadows watch you everywhere.',
-            fileName: 'omen_boo.mp3',
-            audioUrl: 'assets/audio/voicelines/omen_boo.mp3',
-            duration: 0.80,
             isDefault: true
         }
     ]
@@ -1130,7 +1112,19 @@ function getStoredVoicelinesConfig() {
         const raw = localStorage.getItem(VOICELINES_CONFIG_KEY);
         if (raw !== null && raw !== undefined) {
             const parsed = JSON.parse(raw);
-            if (parsed && Array.isArray(parsed.list)) return parsed;
+            if (parsed && Array.isArray(parsed.list)) {
+                // Lọc bỏ 2 voiceline đã xóa nếu còn lưu cache trong localStorage cũ của trình duyệt
+                const filtered = parsed.list.filter(item => 
+                    item.id !== 'omen_vl_nightmare' && 
+                    item.id !== 'omen_vl_boo' && 
+                    item.title !== 'Escape my nightmare' && 
+                    item.title !== 'Boo!'
+                );
+                if (filtered.length > 0) {
+                    parsed.list = filtered;
+                    return parsed;
+                }
+            }
         }
     } catch (e) {
         console.error('Lỗi đọc cấu hình voicelines:', e);
