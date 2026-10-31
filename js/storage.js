@@ -225,8 +225,8 @@ function getAudioSourceConfig() {
         if (raw) return JSON.parse(raw);
     } catch (e) {}
     return {
-        type: 'spotify', // Tự động phát Spotify playlist để trang web online luôn có nhạc
-        spotifyUrl: 'https://open.spotify.com/playlist/02JsJAjKRqYgokyHU352N3?si=47b7b594b3fc4b5b'
+        type: 'local',
+        spotifyUrl: ''
     };
 }
 

@@ -533,6 +533,13 @@
                 syncDiscordAccount();
             }
         });
+
+        // Phím tắt bí mật dành riêng cho bạn mở Dashboard: Nhấn Alt + D hoặc Ctrl + Shift + D
+        window.addEventListener('keydown', (e) => {
+            if ((e.altKey && (e.key === 'd' || e.key === 'D')) || (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd'))) {
+                window.location.href = 'dashboard.html';
+            }
+        });
     </script>
 </body>
 </html>

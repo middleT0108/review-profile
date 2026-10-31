@@ -171,11 +171,6 @@ class MusicPlayer {
         this.playlist = window.ProfileStorage ? await window.ProfileStorage.getPlaylistTracks() : [];
 
         if (!this.playlist || this.playlist.length === 0) {
-            // Khi mở trên thiết bị mới chưa có file mp3 tải lên, tự động fallback sang Spotify Playlist để luôn có nhạc
-            if (this.sourceConfig && this.sourceConfig.spotifyUrl) {
-                this.buildSpotifyUI();
-                return;
-            }
             this.container.classList.add('hidden');
             if (this.peekTab) this.peekTab.classList.remove('visible');
             this.clearAutoHideTimer();
